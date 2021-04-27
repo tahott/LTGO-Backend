@@ -33,7 +33,9 @@
       "/node_modules/"
     ]
   },
-  "dependencies": {},
+  "dependencies": {
+    "@azure/cosmos": "^3.11.0"
+  },
   "devDependencies": {
     "@azure/functions": "^1.2.3",
     "@types/jest": "^26.0.22",

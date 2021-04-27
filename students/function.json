@@ -7,10 +7,8 @@
       "name": "req",
       "methods": [
         "get",
-        "patch",
-        "delete"
-      ],
-      "route": "student/{id}"
+        "post"
+      ]
     },
     {
       "type": "http",
@@ -18,5 +16,5 @@
       "name": "res"
     }
   ],
-  "scriptFile": "../dist/student/index.js"
+  "scriptFile": "../dist/students/index.js"
 }
