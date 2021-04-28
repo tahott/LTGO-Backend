@@ -1,5 +1,5 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions"
-import { CosmosClient } from '@azure/cosmos'
+import { CosmosClient, Item } from '@azure/cosmos'
 
 const client = new CosmosClient({ endpoint: process.env["DbEndPoint"], key: process.env["DbKey"] });
 
@@ -26,6 +26,13 @@ const methodPatch = async function (context: Context, req: HttpRequest) {
 }
 
 const methodDelete = async function (context: Context, req: HttpRequest) {
+  const { id } = req.params;
+  const container = await client.database('ltgo').container('students');
+
+  const item = await container.item(id, id)
+  await item.delete()
+
+  context.done()
 }
 
 const httpTrigger: AzureFunction = async function (context: Context, req: HttpRequest): Promise<void> {
