@@ -1,8 +1,8 @@
-import { hasMatchTitle, isFinished, shouldMode } from '../matches/utils';
+import { hasLeagueResultsKeys, hasMatchTitle, isFinished, shouldMode } from '../matches/utils';
 
 test.each`
   source | expected
-  ${{ match: { title: "주간 리그" } }} | ${true}
+  ${{ match: { title: "주간 리그", interval: 0 } }} | ${true}
   ${{ match: {} }} | ${false}
   ${{ match: { title: "" } }} | ${false}
   ${{ match: { tltle: "일간 리그" }}} | ${false}
@@ -79,6 +79,17 @@ test.each`
   ${resultsCases} | ${true}
 `('returns $expected when $source', ({ source, expected }) => {
   const res = isFinished(source);
+
+  expect(res).toEqual(expected);
+})
+
+test.each`
+  source | expected
+  ${{ player: '', win: 0, lose: 0, opponents: [] }} | ${true}
+  ${{ player: '', win: 0, lose: 0 }} | ${false}
+  ${{ Player: '', WIN: '', lose: 0, opponents: [] }} | ${false}
+`('', ({ source, expected }) => {
+  const res = hasLeagueResultsKeys(source)
 
   expect(res).toEqual(expected);
 })

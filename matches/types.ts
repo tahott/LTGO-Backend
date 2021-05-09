@@ -1,7 +1,7 @@
 export interface Match {
   match: {
     title: string,
-    round?: number,
+    interval: number,
   },
   mode: string,
   results: {
