@@ -3,7 +3,7 @@ import { CosmosClient } from '@azure/cosmos';
 import {
   hasMatchTitle,
   isArray,
-  isFinished,
+  isMatchFinished,
   shouldMode,
   hasLength,
   hasLeagueResultsKeys,
@@ -33,19 +33,31 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
     && resultsLengthCheck
     && body.results.every((e) => hasLeagueResultsKeys(e))
   ) {
-    const container = await client.database('ltgo').container('matches');
+    try {
+      const container = await client.database('ltgo').container('matches');
 
-    body.id = `${body.match.interval}-${body.match.title}-${body.match.date}`
-    body.createdAt = dayjs().format('YYYY-MM-DD');
-    body.isFinished = isFinished(body.results);
-    container.items.create(body);
-  
-    context.res = {
-      status: 200,
-      body: `"${body.match.title}" match was created`
-    };
+      body.id = `${body.match.interval}-${body.match.title}-${body.match.date}`
+      body.createdAt = dayjs().format('YYYY-MM-DD');
+      body.isFinished = isMatchFinished(body.results);
 
-    context.done();
+      req.method === 'POST'
+        ? container.items.create(body)
+        : container.items.upsert(body)
+    
+      context.res = {
+        status: 200,
+        body: `"${body.match.title}" match was created`
+      };
+
+      context.done();
+    } catch (err) {
+      context.res = {
+        status: 400,
+        body: err.message
+      }
+
+      context.done();
+    }
   }
 
   context.res = {

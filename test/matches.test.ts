@@ -1,4 +1,9 @@
-import { hasLeagueResultsKeys, hasMatchTitle, isFinished, shouldMode } from '../matches/utils';
+import {
+  hasLeagueResultsKeys,
+  hasMatchTitle,
+  isMatchFinished,
+  shouldMode,
+} from '../matches/utils';
 
 test.each`
   source | expected
@@ -78,7 +83,7 @@ test.each`
   source | expected
   ${resultsCases} | ${true}
 `('returns $expected when $source', ({ source, expected }) => {
-  const res = isFinished(source);
+  const res = isMatchFinished(source);
 
   expect(res).toEqual(expected);
 })

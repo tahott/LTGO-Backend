@@ -18,11 +18,17 @@ const totalMatchCount = (count: number) => count * (count - 1);
 export const isArray = (target: any) => Array.isArray(target)
 export const hasLength = (target: any, len: number) => target.length > len
 
-export const isFinished = (results) => {
+export const isMatchFinished = (results) => {
   const sumOfIndividualMatches = results
-    .reduce((a, b) => a + b.opponents.length > 0 ? b.opponents.length : 0, 0);
+    .reduce((a, b) => b.opponents.length > 0 ? a + b.opponents.length : 0, 0);
 
-  return totalMatchCount(results.length) === sumOfIndividualMatches;
+  if (totalMatchCount(results.length) < sumOfIndividualMatches) {
+    throw new Error('Invalid Matches')
+  }
+
+  return totalMatchCount(results.length) > sumOfIndividualMatches
+    ? false
+    : totalMatchCount(results.length) === sumOfIndividualMatches
 }
 
 export const hasLeagueResultsKeys = (result) => {
