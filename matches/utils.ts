@@ -1,7 +1,12 @@
+import dayjs = require('dayjs');
+import * as weekOfYear from 'dayjs/plugin/weekOfYear'
+
 import { Match } from './types';
 
+dayjs.extend(weekOfYear)
+
 const modes = ['league', 'tonurment', 'doubleelimination']
-const intervals = [0, 1, 2, 3]
+const intervals = [0, 1, 2, 3, 4]
 const leagueResultKeys = ['player', 'win', 'lose', 'opponents']
 
 export const hasMatchTitle = (data: Match) => (
@@ -23,7 +28,7 @@ export const isMatchFinished = (results) => {
     .reduce((a, b) => b.opponents.length > 0 ? a + b.opponents.length : 0, 0);
 
   if (totalMatchCount(results.length) < sumOfIndividualMatches) {
-    throw new Error('Invalid Matches')
+    throw 'Invalid Matches';
   }
 
   return totalMatchCount(results.length) > sumOfIndividualMatches
@@ -40,4 +45,14 @@ export const hasLeagueResultsKeys = (result) => {
     && typeof result.win === 'number'
     && typeof result.lose === 'number'
     && Array.isArray(result.opponents)
+}
+
+const isEqual = (source, target) => source === target
+
+export const makeMatchDate = (interval) => {
+  return (isEqual(interval, 0) && dayjs().format('YYYY'))
+    || (isEqual(interval, 1) && dayjs().format('YYYYMM'))
+    || (isEqual(interval, 2) && dayjs().format('YYYYMM') + '-' + dayjs().week())
+    || (isEqual(interval, 3) && dayjs().format('YYYYMMDD'))
+    || (isEqual(interval, 4) && dayjs().format('YYYYMMDD'))
 }
