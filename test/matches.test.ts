@@ -2,6 +2,7 @@ import {
   hasLeagueResultsKeys,
   hasMatchTitle,
   isMatchFinished,
+  matchResultsValidity,
   shouldMode,
 } from '../matches/utils';
 
@@ -97,4 +98,60 @@ test.each`
   const res = hasLeagueResultsKeys(source)
 
   expect(res).toEqual(expected);
+})
+
+const matchResultsCases = [
+  [
+    {
+      player: 'a',
+      opponents: [
+        {
+          player: 'b'
+        },
+        {
+          player: 'c'
+        }
+      ]
+    },
+    {
+      player: 'b',
+      opponents: [
+        {
+          player: 'a'
+        },
+        {
+          player: 'c'
+        }
+      ]
+    },
+    {
+      player: 'c',
+      opponents: [
+        {
+          player: 'a'
+        },
+        {
+          player: 'b'
+        },
+        {
+          player: 'd'
+        }
+      ]
+    },
+    {
+      player: 'd',
+      opponents: []
+    }
+  ],
+]
+
+test.each`
+  source | expected 
+  ${matchResultsCases[0]} | ${true}
+`(
+  'matchResultsValidity - returns $expected when $source',
+  ({ source, expected }) => {
+    const res = matchResultsValidity(source);
+
+    expect(res).toEqual(expected);
 })

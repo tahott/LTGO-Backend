@@ -1,13 +1,13 @@
 import dayjs = require('dayjs');
-import * as weekOfYear from 'dayjs/plugin/weekOfYear'
+import * as weekOfYear from 'dayjs/plugin/weekOfYear';
 
-import { Match } from './types';
+import { Match, Results, Opponent } from './types';
 
-dayjs.extend(weekOfYear)
+dayjs.extend(weekOfYear);
 
-const modes = ['league', 'tonurment', 'doubleelimination']
-const intervals = [0, 1, 2, 3, 4]
-const leagueResultKeys = ['player', 'win', 'lose', 'opponents']
+const modes = ['league', 'tonurment', 'doubleelimination'];
+const intervals = [0, 1, 2, 3, 4];
+const leagueResultKeys = ['player', 'win', 'lose', 'opponents'];
 
 export const hasMatchTitle = (data: Match) => (
   data.match.hasOwnProperty('title')
@@ -47,7 +47,7 @@ export const hasLeagueResultsKeys = (result) => {
     && Array.isArray(result.opponents)
 }
 
-const isEqual = (source, target) => source === target
+const isEqual = (source, target) => source === target;
 
 export const makeMatchDate = (interval) => {
   return (isEqual(interval, 0) && dayjs().format('YYYY'))
@@ -55,4 +55,19 @@ export const makeMatchDate = (interval) => {
     || (isEqual(interval, 2) && dayjs().format('YYYYMM') + '-' + dayjs().week())
     || (isEqual(interval, 3) && dayjs().format('YYYYMMDD'))
     || (isEqual(interval, 4) && dayjs().format('YYYYMMDD'))
+}
+
+export const participantList = (results: Results[]) => results.map(({ player }) => player)
+
+export const opponentList = (opponents: Opponent[]) => opponents.map(({ player }) => player)
+
+export const matchResultsValidity = (results: Results[]) => {
+  const players = participantList(results)
+  const res = results.every((result) => {
+    const opponents = opponentList(result.opponents)
+    const diff = opponents.filter((opponent) => !players.includes(opponent))
+    return !opponents.includes(result.player) && diff.length < 1
+  })
+
+  return res;
 }
