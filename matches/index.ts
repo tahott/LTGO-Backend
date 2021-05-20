@@ -5,10 +5,9 @@ import {
 } from './functions';
 import {
   hasMatchTitle,
-  isArray,
   shouldMode,
-  hasLength,
   hasLeagueResultsKeys,
+  matchResultsValidity,
 } from "./utils";
 
 const client = new CosmosClient({ endpoint: process.env["DbEndPoint"], key: process.env["DbKey"] });
@@ -19,19 +18,16 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
   const [
     hasMatchTitleCheck,
     shouldModeCheck,
-    isResultsArray,
-    resultsLengthCheck,
+    isMatchResults
   ] = await Promise.all([
     hasMatchTitle(body),
     shouldMode(body?.mode),
-    isArray(body.results),
-    hasLength(body.results, 2),
+    matchResultsValidity(body.results),
   ]);
 
   if (hasMatchTitleCheck
     && shouldModeCheck
-    && isResultsArray
-    && resultsLengthCheck
+    && isMatchResults
     && body.results.every((e) => hasLeagueResultsKeys(e))
   ) {
     try {

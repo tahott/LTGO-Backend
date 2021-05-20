@@ -66,7 +66,10 @@ export const matchResultsValidity = (results: Results[]) => {
   const res = results.every((result) => {
     const opponents = opponentList(result.opponents)
     const diff = opponents.filter((opponent) => !players.includes(opponent))
-    return !opponents.includes(result.player) && diff.length < 1
+    return !opponents.includes(result.player)
+      && diff.length < 1
+      && isArray(results)
+      && hasLength(results, 2)
   })
 
   return res;
