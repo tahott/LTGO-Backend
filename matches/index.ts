@@ -1,14 +1,14 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
 import { CosmosClient } from '@azure/cosmos';
 import {
+  post, patch,
+} from './functions';
+import {
   hasMatchTitle,
-  isArray,
-  isMatchFinished,
   shouldMode,
-  hasLength,
   hasLeagueResultsKeys,
+  matchResultsValidity,
 } from "./utils";
-import * as dayjs from 'dayjs';
 
 const client = new CosmosClient({ endpoint: process.env["DbEndPoint"], key: process.env["DbKey"] });
 
@@ -18,42 +18,36 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
   const [
     hasMatchTitleCheck,
     shouldModeCheck,
-    isResultsArray,
-    resultsLengthCheck,
+    isMatchResults
   ] = await Promise.all([
     hasMatchTitle(body),
     shouldMode(body?.mode),
-    isArray(body.results),
-    hasLength(body.results, 2),
+    matchResultsValidity(body.results),
   ]);
 
   if (hasMatchTitleCheck
     && shouldModeCheck
-    && isResultsArray
-    && resultsLengthCheck
+    && isMatchResults
     && body.results.every((e) => hasLeagueResultsKeys(e))
   ) {
     try {
       const container = await client.database('ltgo').container('matches');
 
-      body.id = `${body.match.interval}-${body.match.title}-${body.match.date}`
-      body.createdAt = dayjs().format('YYYY-MM-DD');
-      body.isFinished = isMatchFinished(body.results);
+      const result = req.method === 'POST'
+        ? await post(body, container)
+        : await patch(body, container)
 
-      req.method === 'POST'
-        ? container.items.create(body)
-        : container.items.upsert(body)
-    
       context.res = {
         status: 200,
-        body: `"${body.match.title}" match was created`
+        body: result,
       };
 
       context.done();
     } catch (err) {
+
       context.res = {
         status: 400,
-        body: err.message
+        body: err
       }
 
       context.done();
