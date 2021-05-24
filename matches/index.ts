@@ -13,6 +13,24 @@ import {
 const client = new CosmosClient({ endpoint: process.env["DbEndPoint"], key: process.env["DbKey"] });
 
 const httpTrigger: AzureFunction = async function (context: Context, req: HttpRequest): Promise<void> {
+  const container = await client.database('ltgo').container('matches');
+
+  if (req.method === 'GET') {
+    const { resources } = await container.items.query(`
+      SELECT
+        c.id,
+        c.isFinished
+      FROM c
+    `).fetchAll();
+
+    context.res = {
+      status: 200,
+      body: resources,
+    }
+
+    context.done();
+  }
+
   const { body } = req;
 
   const [
@@ -31,8 +49,6 @@ const httpTrigger: AzureFunction = async function (context: Context, req: HttpRe
     && body.results.every((e) => hasLeagueResultsKeys(e))
   ) {
     try {
-      const container = await client.database('ltgo').container('matches');
-
       const result = req.method === 'POST'
         ? await post(body, container)
         : await patch(body, container)
