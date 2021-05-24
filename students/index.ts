@@ -10,7 +10,7 @@ const client = new CosmosClient({ endpoint: process.env["DbEndPoint"], key: proc
 
 const methodGet = async function (context: Context, req: HttpRequest) {
   const container = await client.database('ltgo').container('students');
-  context.log(container)
+
   const { resources } = await container.items.query(`
     SELECT
       c["id"],
@@ -18,12 +18,14 @@ const methodGet = async function (context: Context, req: HttpRequest) {
       c["birth"],
       c["group"]
     FROM c
-  `).fetchAll()
-  context.log(resources)
+  `).fetchAll();
+
   context.res = {
     status: 200,
     body: resources,
   }
+
+  context.done();
 }
 
 const methodPost = async function (context: Context, req: HttpRequest) {
@@ -43,18 +45,22 @@ const methodPost = async function (context: Context, req: HttpRequest) {
       group,
       registrationDate,
     }
-    container.items.create(item)
+    container.items.create(item);
+
     context.res = {
       status: 200,
       body: item,
     }
-    context.done()
+
+    context.done();
   }
 
   context.res = {
     status: 400,
     body: 'bad parameter'
   }
+
+  context.done();
 }
 
 const httpTrigger: AzureFunction = async function (context: Context, req: HttpRequest): Promise<void> {
